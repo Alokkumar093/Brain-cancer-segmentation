@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Brain Tumor Segmentation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        #upload-form {
+            width: 50%;
+            margin: 40px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #upload-form input[type="file"] {
+            display: block;
+            margin-bottom: 20px;
+        }
+
+        #upload-form button[type="submit"] {
+            background-color: #4CAF50;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #upload-form button[type="submit"]:hover {
+            background-color: #3e8e41;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Brain Tumor Segmentation</h1>
+    <form id="upload-form" enctype="multipart/form-data">
+        <input type="file" name="flair" accept=".nii">
+        <input type="file" name="t1ce" accept=".nii">
+        <button type="submit">Submit</button>
+    </form>
+    <div id="result"></div>
+
+    <script>
+        const form = document.getElementById('upload-form');
+        const resultDiv = document.getElementById('result');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const flairFile = form.flair.files[0];
+            const t1ceFile = form.t1ce.files[0];
+
+            if (!flairFile || !t1ceFile) {
+                alert('Please select both FLAIR and T1CE files');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('flair', flairFile);
+            formData.append('t1ce', t1ceFile);
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const gifBlob = await response.blob();
+                    const gifUrl = URL.createObjectURL(gifBlob);
+                    resultDiv.innerHTML = `<img src="${gifUrl}" width="100%">`;
+                } else {
+                    const error = await response.text();
+                    alert(`Error: ${error}`);
+                }
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,9 @@
+__pycache__
+env
+notebook
+test_data
+.gitattributes
+.gitignore
+LICENSE
+README.md
+.git
